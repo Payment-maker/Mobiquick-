@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #eef1f6;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      background-color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.08);
+      position: relative;
+      padding-bottom: 85px;
+    }
+
+    /* Top Blue Header */
+    .top-header {
+      background-color: #0b49b8;
+      color: #ffffff;
+      padding: 16px 16px 24px 16px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .tab {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      position: relative;
+      padding-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: #ffffff;
+      font-size: 17.5px;
+      font-weight: 700;
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 3px;
+      background-color: #ff8c24;
+      border-radius: 2px;
+    }
+
+    .home-brand-title {
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 4px 0;
+    }
+
+    /* Main Content Area */
+    .main-sheet {
+      background-color: #ffffff;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      margin-top: -12px;
+      padding: 16px 16px 0 16px;
+      flex: 1;
+    }
+
+    .hidden-view {
+      display: none !important;
+    }
+
+    /* Home Editor Panel */
+    .home-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .home-card h3 {
+      font-size: 15px;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-group label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .home-card input, .home-card select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13.5px;
+      outline: none;
+      background: #fff;
+      color: #1e293b;
+    }
+
+    .home-card input:focus, .home-card select:focus {
+      border-color: #0b49b8;
+    }
+
+    .row-2 {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-btn {
+      background: #0b49b8;
+      color: #fff;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .add-btn:active {
+      background: #093b96;
+    }
+
+    .status-msg {
+      font-size: 12px;
+      font-weight: 600;
+      color: #16a34a;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* Manage List on Home */
+    .manage-section {
+      margin-top: 16px;
+    }
+
+    .manage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .manage-header span {
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .clear-all-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mini-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    /* History Page Top Bar */
+    .sheet-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f3f6;
+    }
+
+    .date-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: #7c8594;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .filter-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #364152;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Transaction Item */
+    .tx-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 15px 0;
+      border-bottom: 1px solid #f2f4f7;
+      cursor: pointer;
+    }
+
+    .tx-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 68%;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tx-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tx-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #1e242f;
+      line-height: 1.35;
+    }
+
+    .tx-time {
+      font-size: 11.5px;
+      color: #8a94a6;
+      font-weight: 500;
+    }
+
+    .cashback-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background-color: #e8f8ee;
+      color: #16803c;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 12px;
+      margin-top: 4px;
+      width: fit-content;
+    }
+
+    .tx-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+
+    .tx-amount-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e242f;
+    }
+
+    .upi-tag {
+      background-color: #f3f4f6;
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2.5px 7px;
+      border-radius: 6px;
+    }
+
+    /* Floating Statement Pill */
+    .statement-pill {
+      position: fixed;
+      bottom: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      padding: 8px 18px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1f2937;
+      z-index: 10;
+    }
+
+    /* FULLSCREEN DETAIL RECEIPT MODAL (Matches 3rd Screenshot) */
+    .receipt-modal {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      background-color: #f4f6fa;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .receipt-modal.hidden {
+      display: none;
+    }
+
+    .receipt-top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .receipt-close-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #1e293b;
+      cursor: pointer;
+    }
+
+    .receipt-top-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-pill-btn {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .receipt-header-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .receipt-amt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+
+    .success-green-icon {
+      width: 26px;
+      height: 26px;
+      background: #16a34a;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .receipt-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .receipt-main-status {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .receipt-datetime {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .receipt-section-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .receipt-sec-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .receipt-sec-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .receipt-sec-subvalue {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .receipt-id-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      word-break: break-all;
+      font-size: 13.5px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .copy-icon-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-top: 1px solid #eceff3;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 64px;
+      z-index: 20;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: #7c8594;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #0b49b8;
+      font-weight: 700;
+    }
+
+    .qr-btn {
+      width: 48px;
+      height: 48px;
+      background: #0b49b8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      margin-top: -16px;
+      box-shadow: 0 4px 10px rgba(11, 73, 184, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Top Header -->
+    <div class="top-header">
+      <div id="homeHeader" class="home-brand-title">
+        Made by Ibrahim
+      </div>
+      <div id="historyHeader" class="tabs hidden-view">
+        <div class="tab active">Wallet</div>
+        <div class="tab">Bank A/C</div>
+        <div class="tab">Cards</div>
+      </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <div id="homeView" class="main-sheet">
+      <div class="home-card">
+        <h3>Add Payment Entry</h3>
+
+        <div class="input-group">
+          <label>Header Date (Top Left in History)</label>
+          <input type="text" id="headerDateInput" value="17 NOV 2026" oninput="updateHeaderDate()" />
+        </div>
+
+        <div class="row-2">
+          <div class="input-group" style="flex: 2;">
+            <label>Person Name</label>
+            <input type="text" id="senderName" placeholder="e.g. Md Yahiya Hassan" />
+          </div>
+          <div class="input-group" style="flex: 1;">
+            <label>Amount (₹)</label>
+            <input type="number" id="txAmount" placeholder="5000" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="input-group" style="flex: 1.4;">
+            <label>Date & Time</label>
+            <input type="text" id="txDateTime" placeholder="17 Nov, 09:38 PM" />
+          </div>
+          <div class="input-group" style="flex: 1;">
+            <label>Payment Type</label>
+            <select id="txType">
+              <option value="received">Received (Green)</option>
+              <option value="sent">Sent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="input-group" style="flex: 1;">
+            <label>UPI Tag</label>
+            <input type="text" id="upiLabel" value="Pocket UPI" />
+          </div>
+          <div class="input-group" style="flex: 1.3;">
+            <label>Cashback (Optional)</label>
+            <input type="text" id="cashbackText" placeholder="You earned ₹2.18 Cashback" />
+          </div>
+        </div>
+
+        <button class="add-btn" onclick="addTransaction()">+ Add Entry</button>
+        <div class="status-msg" id="statusMsg"></div>
+      </div>
+
+      <div class="manage-section">
+        <div class="manage-header">
+          <span>Added Entries (<span id="entryCount">0</span>)</span>
+          <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
+        </div>
+        <div id="miniList"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="historyView" class="main-sheet hidden-view">
+      <div class="sheet-top-bar">
+        <span class="date-header" id="topDateLabel">17 NOV 2026</span>
+        <div class="filter-label">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0b49b8" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <span>Filter</span>
+        </div>
+      </div>
+
+      <div class="tx-list" id="txList"></div>
+    </div>
+
+    <!-- FULLSCREEN RECEIPT POPUP MODAL -->
+    <div id="receiptModal" class="receipt-modal hidden">
+      <div class="receipt-top-nav">
+        <button class="receipt-close-btn" onclick="closeReceipt()">✕</button>
+        <div class="receipt-top-actions">
+          <button class="action-pill-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+          <button class="action-pill-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Help
+          </button>
+        </div>
+      </div>
+
+      <div class="receipt-header-card">
+        <div class="receipt-amt-row">
+          <span id="modalAmount">₹1</span>
+          <div class="success-green-icon">✓</div>
+        </div>
+        <div class="receipt-subtitle">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Payment from Wallet App
+        </div>
+        <div class="receipt-main-status" id="modalMainStatus">Pocket UPI transaction success</div>
+        <div class="receipt-datetime" id="modalDateTime">15 Nov '26 at 4:31 PM</div>
+      </div>
+
+      <div class="receipt-section-card">
+        <div class="receipt-sec-title">Received In</div>
+        <div class="receipt-sec-value">Wallet Account</div>
+        <div class="receipt-sec-subvalue" id="modalTag">Pocket UPI</div>
+      </div>
+
+      <div class="receipt-section-card">
+        <div class="receipt-sec-title">Received From</div>
+        <div class="receipt-sec-value" id="modalSenderName">Govinda Gangadhar Bhosale</div>
+        <div class="receipt-sec-subvalue" id="modalUpiId">7665812010@upi</div>
+      </div>
+
+      <div class="receipt-section-card">
+        <div class="receipt-sec-title">Order ID</div>
+        <div class="receipt-id-row">
+          <span id="modalOrderId">APB1450U1MC1hZDIOLTIIZTA5MmNmNjJiMg</span>
+          <button class="copy-icon-btn">📋</button>
+        </div>
+      </div>
+
+      <div class="receipt-section-card">
+        <div class="receipt-sec-title">UPI Transaction ID</div>
+        <div class="receipt-id-row">
+          <span id="modalTxId">631916176518</span>
+          <button class="copy-icon-btn">📋</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statement Pill -->
+    <div id="statementPill" class="statement-pill hidden-view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="12" y1="18" x2="12" y2="12"></line>
+        <polyline points="9 15 12 18 15 15"></polyline>
+      </svg>
+      <span>Statement</span>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" id="navHome" onclick="switchPage('home')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span>Home</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Services</span>
+      </div>
+      <div class="qr-btn">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4h-4z"/></svg>
+      </div>
+      <div class="nav-item" id="navHistory" onclick="switchPage('history')">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+        <span>History</span>
+      </div>
+      <div class="nav-item">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const avatarColors = ['#7c69ef', '#8b5cf6', '#f59e0b', '#3b82f6', '#ec4899'];
+
+    let transactions = [
+      {
+        name: 'Md Yahiya Hassan',
+        amount: '6,000',
+        dateTime: '17 Nov, 07:14 AM',
+        type: 'received',
+        tag: 'Pocket UPI',
+        cashback: '',
+        color: '#7c69ef',
+        upiId: 'yahiya@pay',
+        orderId: 'APB9841U1MC1hZDIOLTIIZTA5MmNmNjJiMg',
+        txId: '631916178942'
+      },
+      {
+        name: 'Md Yahiya Hassan',
+        amount: '600',
+        dateTime: '16 Nov, 04:35 PM',
+        type: 'received',
+        tag: 'Pocket UPI',
+        cashback: '',
+        color: '#7c69ef',
+        upiId: 'yahiya@pay',
+        orderId: 'APB9841U1MC1hZDIOLTIIZTA5MmNmNjJiMg',
+        txId: '631916178942'
+      },
+      {
+        name: 'Md Yahiya Hassan',
+        amount: '600',
+        dateTime: '16 Nov, 04:35 PM',
+        type: 'received',
+        tag: 'Pocket UPI',
+        cashback: '',
+        color: '#8b5cf6',
+        upiId: 'yahiya@pay',
+        orderId: 'APB7234U1MC1hZDIOLTIIZTA5MmNmNjJiMg',
+        txId: '631916174510'
+      }
+    ];
+
+    function switchPage(page) {
+      const homeView = document.getElementById('homeView');
+      const historyView = document.getElementById('historyView');
+      const homeHeader = document.getElementById('homeHeader');
+      const historyHeader = document.getElementById('historyHeader');
+      const statementPill = document.getElementById('statementPill');
+      const navHome = document.getElementById('navHome');
+      const navHistory = document.getElementById('navHistory');
+
+      if (page === 'home') {
+        homeView.classList.remove('hidden-view');
+        homeHeader.classList.remove('hidden-view');
+        historyView.classList.add('hidden-view');
+        historyHeader.classList.add('hidden-view');
+        statementPill.classList.add('hidden-view');
+
+        navHome.classList.add('active');
+        navHistory.classList.remove('active');
+      } else {
+        homeView.classList.add('hidden-view');
+        homeHeader.classList.add('hidden-view');
+        historyView.classList.remove('hidden-view');
+        historyHeader.classList.remove('hidden-view');
+        statementPill.classList.remove('hidden-view');
+
+        navHome.classList.remove('active');
+        navHistory.classList.add('active');
+        renderTransactions();
+      }
+    }
+
+    function updateHeaderDate() {
+      const val = document.getElementById('headerDateInput').value.trim();
+      document.getElementById('topDateLabel').innerText = val || '17 NOV 2026';
+    }
+
+    function formatIndianCurrency(num) {
+      return Number(num).toLocaleString('en-IN');
+    }
+
+    function renderTransactions() {
+      const list = document.getElementById('txList');
+      const miniList = document.getElementById('miniList');
+      const entryCount = document.getElementById('entryCount');
+
+      list.innerHTML = '';
+      miniList.innerHTML = '';
+      entryCount.innerText = transactions.length;
+
+      transactions.forEach((tx, index) => {
+        const firstLetter = tx.name.trim().charAt(0).toUpperCase() || 'M';
+        const isReceived = tx.type === 'received';
+        const displayTitle = isReceived ? `Received from ${tx.name}` : tx.name;
+
+        const arrowSVG = isReceived
+          ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>`
+          : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>`;
+
+        const cashbackHTML = tx.cashback
+          ? `<div class="cashback-badge">🏷️ ${tx.cashback}</div>`
+          : '';
+
+        // History Item (Click to open detail receipt)
+        const item = document.createElement('div');
+        item.className = 'tx-item';
+        item.onclick = () => openReceipt(tx);
+        item.innerHTML = `
+          <div class="tx-left">
+            <div class="avatar" style="background-color: ${tx.color};">${firstLetter}</div>
+            <div class="tx-details">
+              <div class="tx-title">${displayTitle}</div>
+              <div class="tx-time">${tx.dateTime}</div>
+              ${cashbackHTML}
+            </div>
+          </div>
+          <div class="tx-right">
+            <div class="tx-amount-row">
+              <span>₹${tx.amount}</span>
+              ${arrowSVG}
+            </div>
+            <div class="upi-tag">${tx.tag}</div>
+          </div>
+        `;
+        list.appendChild(item);
+
+        // Home Page Mini Item
+        const mini = document.createElement('div');
+        mini.className = 'mini-item';
+        mini.innerHTML = `
+          <span><strong>${tx.name}</strong> — ₹${tx.amount} (${isReceived ? 'Received' : 'Sent'})</span>
+          <button class="del-btn" onclick="event.stopPropagation(); deleteEntry(${index})">×</button>
+        `;
+        miniList.appendChild(mini);
+      });
+    }
+
+    function openReceipt(tx) {
+      document.getElementById('modalAmount').innerText = `₹${tx.amount}`;
+      document.getElementById('modalMainStatus').innerText = `${tx.tag} transaction success`;
+      document.getElementById('modalDateTime').innerText = tx.dateTime;
+      document.getElementById('modalTag').innerText = tx.tag;
+      document.getElementById('modalSenderName').innerText = tx.name;
+      document.getElementById('modalUpiId').innerText = tx.upiId || 'user@upi';
+      document.getElementById('modalOrderId').innerText = tx.orderId || 'APB1450U1MC1hZDIOLTIIZTA5MmNmNjJiMg';
+      document.getElementById('modalTxId').innerText = tx.txId || '631916176518';
+
+      document.getElementById('receiptModal').classList.remove('hidden');
+    }
+
+    function closeReceipt() {
+      document.getElementById('receiptModal').classList.add('hidden');
+    }
+
+    function addTransaction() {
+      const nameInput = document.getElementById('senderName').value.trim();
+      const amountInput = document.getElementById('txAmount').value.trim();
+      const dateTimeInput = document.getElementById('txDateTime').value.trim();
+      const typeInput = document.getElementById('txType').value;
+      const tagInput = document.getElementById('upiLabel').value.trim() || 'Pocket UPI';
+      const cashbackInput = document.getElementById('cashbackText').value.trim();
+      const statusMsg = document.getElementById('statusMsg');
+
+      if (!nameInput || !amountInput) {
+        statusMsg.style.color = '#dc2626';
+        statusMsg.innerText = 'Naam aur Amount dono bharo bhai!';
+        return;
+      }
+
+      const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+      const formattedAmt = formatIndianCurrency(amountInput);
+
+      transactions.unshift({
+        name: nameInput,
+        amount: formattedAmt,
+        dateTime: dateTimeInput || 'Just now',
+        type: typeInput,
+        tag: tagInput,
+        cashback: cashbackInput,
+        color: randomColor,
+        upiId: nameInput.toLowerCase().replace(/\s+/g, '') + '@upi',
+        orderId: 'APB' + Math.floor(Math.random() * 9000000000 + 1000000000) + 'MC1h',
+        txId: Math.floor(Math.random() * 900000000000 + 100000000000).toString()
+      });
+
+      // Clear inputs
+      document.getElementById('senderName').value = '';
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txDateTime').value = '';
+      document.getElementById('cashbackText').value = '';
+
+      statusMsg.style.color = '#16a34a';
+      statusMsg.innerText = 'Entry add ho gayi! Ab History tab check karo.';
+      setTimeout(() => { statusMsg.innerText = ''; }, 3000);
+
+      renderTransactions();
+    }
+
+    function deleteEntry(index) {
+      transactions.splice(index, 1);
+      renderTransactions();
+    }
+
+    function clearAll() {
+      transactions = [];
+      renderTransactions();
+    }
+
+    renderTransactions();
+  </script>
+</body>
+</html>
